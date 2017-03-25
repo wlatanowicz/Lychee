@@ -1,4 +1,11 @@
-# Lychee
+# Lychee - modified for astrophotography
+
+This version of Lychee was modified for astrophotography. EXIF information has been replaced
+by editable parameters specific for astronomical images.
+
+![Lychee-astro](https://raw.githubusercontent.com/wlatanowicz/Lychee-astro/astro/preview-astro.png)
+
+# Lychee (original)
 
 #### A great looking and easy-to-use photo-management-system.
 
