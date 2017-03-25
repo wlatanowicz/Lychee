@@ -344,6 +344,73 @@ photo.setTitle = function(photoIDs) {
 
 }
 
+photo.setDetail = function(photoIDs, detail) {
+
+	let oldValue = ''
+	let msg      = ''
+
+	if (!photoIDs) return false
+	if (photoIDs instanceof Array===false) photoIDs = [ photoIDs ]
+
+	if (photoIDs.length===1) {
+
+		// Get old title if only one photo is selected
+		if (photo.json)      oldValue = photo.json[detail];
+
+	}
+
+	let detailName = detail.replace("_", " ");
+
+	const action = function(data) {
+
+		basicModal.close()
+
+		let newValue = data.value
+
+		if (visible.photo()) {
+			photo.json[detail] = newValue;
+            sidebar.changeAttr(detail, photo.json[detail])
+		}
+
+		photoIDs.forEach(function(id, index, array) {
+			album.json.content[id][detail] = newValue
+			//view.album.content.title(id)
+		})
+
+		let params = {
+			photoIDs : photoIDs.join(),
+			field	 : detail,
+			value    : newValue
+		}
+
+		api.post('Photo::setDetail', params, function(data) {
+
+			if (data!==true) lychee.error(null, params, data)
+
+		})
+
+	}
+
+	let input = lychee.html`<input class='text' name='value' type='text' maxlength='50' placeholder='$${ detailName }' value='$${ oldValue }'>`
+
+	msg = lychee.html`<p>Enter new ${ detailName } for this photo: ${ input }</p>`;
+
+	basicModal.show({
+		body: msg,
+		buttons: {
+			action: {
+				title: 'Set ' + detailName,
+				fn: action
+			},
+			cancel: {
+				title: 'Cancel',
+				fn: basicModal.close
+			}
+		}
+	})
+
+}
+
 photo.setAlbum = function(photoIDs, albumID) {
 
 	let nextPhoto = null

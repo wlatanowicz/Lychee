@@ -973,6 +973,24 @@ final class Photo {
 
 	}
 
+	public function setDetail($field, $value) {
+        // Check dependencies
+        Validator::required(isset($this->photoIDs), __METHOD__);
+
+        // Call plugins
+        Plugins::get()->activate(__METHOD__, 0, func_get_args());
+
+        // Set title
+        $query  = Database::prepare(Database::get(), "UPDATE ? SET ? = '?' WHERE id IN (?)", array(LYCHEE_TABLE_PHOTOS, $field, $value, $this->photoIDs));
+        $result = Database::execute(Database::get(), $query, __METHOD__, __LINE__);
+
+        // Call plugins
+        Plugins::get()->activate(__METHOD__, 1, func_get_args());
+
+        if ($result===false) return false;
+        return true;
+	}
+
 	/**
 	 * Sets the description of a photo.
 	 * @return boolean Returns true when successful.

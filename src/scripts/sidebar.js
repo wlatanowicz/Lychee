@@ -61,6 +61,30 @@ sidebar.bind = function() {
 			photo.deleteTag(photo.getID(), $(this).data('index'))
 		})
 
+	var editableDetails = [
+		"captured",
+		"telescope",
+		"lens",
+		"mount",
+		"focal_length",
+		"aperture",
+		"sensor",
+		"exposure",
+		"iso",
+		"accessories",
+		"guiding"
+	];
+
+	for (var i=0; i<editableDetails.length; i++) {
+		let detail = editableDetails[i];
+        sidebar
+            .dom('#edit_' + detail)
+            .off(eventName)
+            .on(eventName, function() {
+                photo.setDetail([ photo.getID() ], detail)
+            })
+	}
+
 	return true
 
 }
@@ -140,6 +164,7 @@ sidebar.createStructure.photo = function(data) {
 		type  : sidebar.types.DEFAULT,
 		rows  : [
 			{ title: 'Title',       value: data.title, editable },
+            { title: 'Captured',    value: data.captured, editable },
 			{ title: 'Uploaded',    value: data.sysdate },
 			{ title: 'Description', value: data.description, editable }
 		]
@@ -171,30 +196,28 @@ sidebar.createStructure.photo = function(data) {
 
 	}
 
-	// Only create EXIF section when EXIF data available
-	if (exifHash!=='0') {
+    let rowsForExif = [
+        { title: 'Telescope',     value: data.telescope, editable },
+        { title: 'Lens',     	  value: data.lens, editable },
+        { title: 'Mount',         value: data.mount, editable },
+        { title: 'Focal Length',  value: data.focal_length, editable },
+        { title: 'Aperture',      value: data.aperture, editable },
+        { title: 'Sensor',        value: data.sensor, editable },
+        { title: 'Exposure', 	  value: data.exposure, editable },
+        { title: 'ISO',           value: data.iso, editable },
+        { title: 'Accessories',   value: data.accessories, editable },
+        { title: 'Guiding',       value: data.guiding, editable }
+    ];
 
-		structure.exif = {
-			title : 'Camera',
-			type  : sidebar.types.DEFAULT,
-			rows  : [
-				{ title: 'Captured',      value: data.takedate },
-				{ title: 'Make',          value: data.make },
-				{ title: 'Type/Model',    value: data.model },
-				{ title: 'Shutter Speed', value: data.shutter },
-				{ title: 'Aperture',      value: data.aperture },
-				{ title: 'Focal Length',  value: data.focal },
-				{ title: 'ISO',           value: data.iso }
-			]
-		}
-
-	} else {
-
-		structure.exif = {}
-
+	structure.exif = {
+		title : 'Details',
+		type  : sidebar.types.DEFAULT,
+		rows  : rowsForExif.filter(function (e) {
+			return e.value || editable;
+        })
 	}
 
-	structure.sharing = {
+    structure.sharing = {
 		title : 'Sharing',
 		type  : sidebar.types.DEFAULT,
 		rows  : [
@@ -342,10 +365,10 @@ sidebar.render = function(structure) {
 			if (value==='' || value==null) value = '-'
 
 			// Wrap span-element around value for easier selecting on change
-			value = lychee.html`<span class='attr_$${ row.title.toLowerCase() }'>$${ value }</span>`
+			value = lychee.html`<span class='attr_$${ row.title.toLowerCase().replace(" ", "_") }'>$${ value }</span>`
 
 			// Add edit-icon to the value when editable
-			if (row.editable===true) value += ' ' + build.editIcon('edit_' + row.title.toLowerCase())
+			if (row.editable===true) value += ' ' + build.editIcon('edit_' + row.title.toLowerCase().replace(" ", "_"))
 
 			_html += lychee.html`
 			         <tr>

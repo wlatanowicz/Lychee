@@ -37,6 +37,7 @@ final class Admin extends Access {
 			case 'Photo::setPublic':        self::setPhotoPublicAction(); break;
 			case 'Photo::setAlbum':         self::setPhotoAlbumAction(); break;
 			case 'Photo::setTags':          self::setPhotoTagsAction(); break;
+			case 'Photo::setDetail':        self::setDetailAction(); break;
 			case 'Photo::duplicate':        self::duplicatePhotoAction(); break;
 			case 'Photo::delete':           self::deletePhotoAction(); break;
 
@@ -158,6 +159,15 @@ final class Admin extends Access {
 
 		$photo = new Photo($_POST['photoIDs']);
 		Response::json($photo->setTitle($_POST['title']));
+
+	}
+
+	private static function setDetailAction() {
+
+		Validator::required(isset($_POST['photoIDs'], $_POST['value'], $_POST['field']), __METHOD__);
+
+		$photo = new Photo($_POST['photoIDs']);
+		Response::json($photo->setDetail($_POST['field'], $_POST['value']));
 
 	}
 
