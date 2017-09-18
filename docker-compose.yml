@@ -11,6 +11,8 @@ services:
     image: adminer
     ports:
       - 8080:8080
+    links:
+      - mysql:db
 
   lychee:
     build: .

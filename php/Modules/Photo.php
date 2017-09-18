@@ -238,8 +238,11 @@ final class Photo {
 
 		}
 
-		$values = array(LYCHEE_TABLE_PHOTOS, $id, $info['title'], $photo_name, $info['description'], $info['tags'], $info['type'], $info['width'], $info['height'], $info['size'], $info['iso'], $info['aperture'], $info['make'], $info['model'], $info['shutter'], $info['focal'], $info['takestamp'], $path_thumb, $albumID, $public, $star, $checksum, $medium);
-		$query  = Database::prepare(Database::get(), "INSERT INTO ? (id, title, url, description, tags, type, width, height, size, iso, aperture, make, model, shutter, focal, takestamp, thumbUrl, album, public, star, checksum, medium) VALUES ('?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?')", $values);
+		$gps_latitude = $info['latitude'];
+		$gps_longitude = $info['longitude'];
+
+		$values = array(LYCHEE_TABLE_PHOTOS, $id, $info['title'], $photo_name, $info['description'], $info['tags'], $info['type'], $info['width'], $info['height'], $info['size'], $info['iso'], $info['aperture'], $info['make'], $info['model'], $info['shutter'], $info['focal'], $info['takestamp'], $path_thumb, $albumID, $public, $star, $checksum, $medium, $gps_latitude, $gps_longitude);
+		$query  = Database::prepare(Database::get(), "INSERT INTO ? (id, title, url, description, tags, type, width, height, size, iso, aperture, make, model, shutter, focal, takestamp, thumbUrl, album, public, star, checksum, medium, gps_latitude, gps_longitude) VALUES ('?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?')", $values);
 		$result = Database::execute(Database::get(), $query, __METHOD__, __LINE__);
 
 		if ($result===false) {
@@ -750,6 +753,16 @@ final class Photo {
 
 		}
 
+        $settings = Settings::get();
+        $photo['mapUrl'] =
+            !empty($settings['googleMapsApiKey'])
+            && !empty($photo['gps_latitude'])
+            && !empty($photo['gps_longitude'])
+                ? "https://www.google.com/maps/embed/v1/place"
+                . "?key={$settings['googleMapsApiKey']}"
+                . "&q={$photo['gps_latitude']},{$photo['gps_longitude']}"
+                : null;
+
 		// Call plugins
 		Plugins::get()->activate(__METHOD__, 1, func_get_args());
 
@@ -792,8 +805,8 @@ final class Photo {
 		$return['lens']        = '';
 		$return['tags']        = '';
 		$return['position']    = '';
-		$return['latitude']    = '';
-		$return['longitude']   = '';
+		$return['latitude']    = null;
+		$return['longitude']   = null;
 		$return['altitude']    = '';
 
 		// Size

@@ -7,7 +7,8 @@ sidebar = {
 	_dom: $('.sidebar'),
 	types: {
 		DEFAULT : 0,
-		TAGS    : 1
+		TAGS    : 1,
+		MAP     : 2,
 	},
 	createStructure: {}
 
@@ -202,12 +203,19 @@ sidebar.createStructure.photo = function(data) {
 		]
 	}
 
+	structure.map = {
+		title: 'Location',
+		type : sidebar.types.MAP,
+		mapUrl: data.mapUrl,
+	}
+
 	// Construct all parts of the structure
 	structure = [
 		structure.basics,
 		structure.image,
 		structure.tags,
 		structure.exif,
+		structure.map,
 		structure.sharing
 	]
 
@@ -386,10 +394,27 @@ sidebar.render = function(structure) {
 
 	}
 
+	let renderMap = function(section){
+
+		let _html = '';
+
+		if (section.mapUrl) {
+            _html += `
+				<div class='sidebar__divider'>
+					<h1>${ section.title }</h1>
+				</div>
+				<iframe id="map" src="${section.mapUrl}" ></iframe>
+			`
+        }
+
+		return _html;
+	}
+
 	structure.forEach(function(section) {
 
 		if (section.type===sidebar.types.DEFAULT)   html += renderDefault(section)
 		else if (section.type===sidebar.types.TAGS) html += renderTags(section)
+		else if (section.type===sidebar.types.MAP)  html += renderMap(section)
 
 	})
 
